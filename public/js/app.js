@@ -1965,6 +1965,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var simple_peer__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! simple-peer */ "./node_modules/simple-peer/index.js");
 /* harmony import */ var simple_peer__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(simple_peer__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 
 
 
@@ -1984,8 +1996,18 @@ var App = function App() {
   var userVideo = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
   var user = window.user;
   user.stream = null;
-  var peers = {};
-  var channel = {};
+  var peers = {}; // Timer state
+
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+      _useState2 = _slicedToArray(_useState, 2),
+      start = _useState2[0],
+      setStart = _useState2[1];
+
+  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+      _useState4 = _slicedToArray(_useState3, 2),
+      finish = _useState4[0],
+      setFinish = _useState4[1];
+
   var mediaHandler = new _MediaHandler__WEBPACK_IMPORTED_MODULE_2__.default();
 
   var setupPusher = function setupPusher() {
@@ -2000,19 +2022,12 @@ var App = function App() {
         }
       }
     });
-    console.log('pusher = ');
-    console.log(pusher);
-    console.log('subscribing to channel...');
     window.channel = pusher.subscribe('presence-video-channel');
-    console.log('before channel binding : ');
-    console.log(window.channel);
-    console.log('channel bind...');
     window.channel.bind("client-signal-".concat(user.id), function (signal) {
       var peer = peers[signal.userId]; // if peer is not already exists, we got an incoming call
 
       if (peer === undefined) {
-        console.log('--------------peer not defined------------');
-        console.log('setOtherUserId & startPeer'); // setOtherUserId(signal.userId);
+        console.log('--------------peer not defined------------'); // setOtherUserId(signal.userId);
 
         otherUserId = signal.userId;
         peer = startPeer(signal.userId, false);
@@ -2020,54 +2035,58 @@ var App = function App() {
 
       peer.signal(signal.data);
     });
-    console.log('channel bound');
   };
-
-  setupPusher();
-  console.log('global channel : ');
-  console.log(window.channel); // channel is undefined here...
 
   var startPeer = function startPeer(userId) {
     var initiator = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-    console.log('startPeer');
-    console.log(hasMedia);
     var peer = new (simple_peer__WEBPACK_IMPORTED_MODULE_4___default())({
       initiator: initiator,
       stream: user.stream,
       trickle: false
     });
-    console.log('signal triggering..'); // FILL THIS
-
-    console.log(window.channel);
     peer.on('signal', function (data) {
+      console.log('peer signaling.......');
       window.channel.trigger("client-signal-".concat(userId), {
         type: 'signal',
         userId: user.id,
         data: data
       });
     });
-    console.log('playing stream..');
     peer.on('stream', function (stream) {
+      console.log('peer playing stream...');
+
       try {
-        console.log('userVideo.current.srcObject = stream;');
         userVideo.current.srcObject = stream;
       } catch (e) {
         console.error(e);
-        console.log('------------- ----------');
+        console.log('---------catch---------');
         userVideo.current.src = URL.createObjectURL(stream);
       }
 
       console.log('userVideo.current.play()');
       userVideo.current.play();
+      console.log('is started ?');
+      console.log(start);
+      var now = new Date();
+      now = "".concat(now.getHours(), ":").concat(now.getMinutes());
+      setStart(now.toString());
     });
     peer.on('close', function () {
+      console.log('peer CLOSED !');
       var peer = peers[userId];
 
       if (peer !== undefined) {
         peer.destroy();
+        console.log('closed & peer destroyed !');
+        var now = new Date();
+        now = "".concat(now.getHours(), ":").concat(now.getMinutes());
+        setFinish(now.toString());
       }
 
       peers[userId] = undefined;
+    });
+    peer.on('error', function () {
+      console.log('error OR connection closed');
     });
     return peer;
   };
@@ -2077,6 +2096,7 @@ var App = function App() {
   };
 
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    console.log('parrent useEffect ');
     mediaHandler.getPermissions().then(function (stream) {
       hasMedia = true;
       user.stream = stream;
@@ -2088,6 +2108,7 @@ var App = function App() {
       }
 
       myVideo.current.play();
+      setupPusher();
     });
   }, []);
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
@@ -2124,11 +2145,37 @@ var App = function App() {
           children: "User Video"
         })]
       })]
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(Timer, {
+      start: start,
+      finish: finish
     })]
   });
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (App);
+
+var Timer = function Timer(_ref) {
+  var start = _ref.start,
+      finish = _ref.finish;
+  console.log('timer rendered');
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    console.log('timer useEffect');
+  }, [start, finish]);
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+    style: {
+      marginLeft: '40px'
+    },
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("span", {
+      children: ["conversation state  : ", start && !finish ? 'ON' : 'OFF']
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+      children: "Timer :"
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("br", {}), start !== '' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("span", {
+      children: ["start : ", start]
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("br", {}), finish !== '' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("span", {
+      children: ["finish : ", finish]
+    })]
+  });
+};
 
 if (document.getElementById('app')) {
   react_dom__WEBPACK_IMPORTED_MODULE_1__.render( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(App, {}), document.getElementById('app'));

@@ -10,9 +10,9 @@ const App = () => {
     const APP_KEY = '7ef358eb5f365260bd07'; 
 
     // const [hasMedia, setHasMedia] = useState(false);
-    let hasMedia = false;
+        let hasMedia = false;
     // const [otherUserId, setOtherUserId] = useState(null);
-    let otherUserId = null;
+        let otherUserId = null;
     
     const myVideo = useRef(null);
     const userVideo = useRef(null);
@@ -20,7 +20,10 @@ const App = () => {
     let user = window.user;
     user.stream = null;
     let peers = {};
-    let channel = {};
+    
+    // Timer state
+    const [start, setStart] = useState('');
+    const [finish, setFinish] = useState('');
 
     let mediaHandler = new MediaHandler();
 
@@ -37,15 +40,7 @@ const App = () => {
             }
         });
 
-        console.log('pusher = ');
-        console.log(pusher);
-
-        console.log('subscribing to channel...');
         window.channel = pusher.subscribe('presence-video-channel');
-
-        console.log('before channel binding : ');
-        console.log(window.channel);
-        console.log('channel bind...');
 
         window.channel.bind(`client-signal-${user.id}`, (signal) => {
             let peer = peers[signal.userId];
@@ -53,7 +48,6 @@ const App = () => {
             // if peer is not already exists, we got an incoming call
             if(peer === undefined) {
                 console.log('--------------peer not defined------------')
-                console.log('setOtherUserId & startPeer');
                 // setOtherUserId(signal.userId);
                 otherUserId = signal.userId;
                 peer = startPeer(signal.userId, false);
@@ -61,32 +55,17 @@ const App = () => {
 
             peer.signal(signal.data);
         });
-
-        console.log('channel bound');
     };
 
-    setupPusher();
-
-    console.log('global channel : ');
-    console.log(window.channel);
-
-    // channel is undefined here...
     let startPeer = (userId, initiator = true) => {
-        console.log('startPeer');
-        console.log(hasMedia);
-        
         const peer = new Peer({
             initiator,
             stream: user.stream,
             trickle: false
         });
 
-        console.log('signal triggering..');
-
-        // FILL THIS
-        console.log(window.channel)
-
         peer.on('signal', (data) => {
+            console.log('peer signaling.......');
             window.channel.trigger(`client-signal-${userId}`, {
                 type: 'signal',
                 userId: user.id,
@@ -94,28 +73,45 @@ const App = () => {
             });
         });
 
-        console.log('playing stream..');
         peer.on('stream', (stream) => {
+            console.log('peer playing stream...');
             try {
-                console.log('userVideo.current.srcObject = stream;');
                 userVideo.current.srcObject = stream;
             } catch (e) {
                 console.error(e)
-                console.log('------------- ----------');
+                console.log('---------catch---------');
                 userVideo.current.src = URL.createObjectURL(stream);
             }
 
             console.log('userVideo.current.play()');
             userVideo.current.play();
+            console.log('is started ?');
+            console.log(start);
+
+            let now = new Date();
+            now = `${now.getHours()}:${now.getMinutes()}`
+
+            setStart(now.toString())
         });
 
         peer.on('close', () => {
+            console.log('peer CLOSED !');
             let peer = peers[userId];
             if(peer !== undefined) {
                 peer.destroy();
+                console.log('closed & peer destroyed !');
+
+                let now = new Date();
+                now = `${now.getHours()}:${now.getMinutes()}`
+
+                setFinish(now.toString())
             }
 
             peers[userId] = undefined;
+        });
+
+        peer.on('error', () => {
+            console.log('error OR connection closed');
         });
 
         return peer;
@@ -126,6 +122,7 @@ const App = () => {
     }
 
     useEffect(() => {
+        console.log('parrent useEffect ');
         mediaHandler.getPermissions()
             .then((stream) => {
                 hasMedia = true;
@@ -139,8 +136,9 @@ const App = () => {
                 }
                 
                 myVideo.current.play();
+                setupPusher();
             })
-    }, [])
+    }, []);
 
     return (
         <div className="App">
@@ -159,12 +157,35 @@ const App = () => {
                     <span>User Video</span>
                 </div>
             </div>
+
+            <Timer start={start} finish={finish}/>
         </div>
     );
 
 }
 
 export default App ;
+
+
+const Timer = ({ start, finish }) => {
+    console.log('timer rendered');
+
+    useEffect( () => {
+        console.log('timer useEffect');
+    }, [start, finish]);
+
+    return (
+        <div style={{marginLeft: '40px'}}>
+            <span>conversation state  : {start && !finish ? 'ON' : 'OFF'}</span>
+            <br/>
+            <span>Timer :</span><br/>
+            { start !== '' && <span>start : {start}</span>}
+            <br/>
+            { finish !== '' && <span>finish : {finish}</span>}
+        </div>
+    )
+}
+
 
 if (document.getElementById('app'))
 {
