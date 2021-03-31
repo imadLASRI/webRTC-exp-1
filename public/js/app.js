@@ -2078,15 +2078,15 @@ var App = function App() {
       if (peer !== undefined) {
         peer.destroy();
         console.log('closed & peer destroyed !');
-        var now = new Date();
-        now = "".concat(now.getHours(), ":").concat(now.getMinutes());
-        setFinish(now.toString());
       }
 
       peers[userId] = undefined;
     });
     peer.on('error', function () {
       console.log('error OR connection closed');
+      var now = new Date();
+      now = "".concat(now.getHours(), ":").concat(now.getMinutes());
+      setFinish(now.toString());
     });
     return peer;
   };
@@ -2113,13 +2113,21 @@ var App = function App() {
   }, []);
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
     className: "App",
-    children: [[1, 2].map(function (userId) {
-      return user.id !== userId ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("button", {
-        onClick: function onClick() {
-          return callTo(userId);
-        },
-        children: ["User ", userId]
-      }, userId) : null;
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+      style: {
+        marginLeft: '40px'
+      },
+      children: [[1, 2].map(function (userId) {
+        return user.id !== userId ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
+          onClick: function onClick() {
+            return callTo(userId);
+          },
+          children: "Contact"
+        }, userId) : null;
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("a", {
+        href: "/",
+        children: "Quit"
+      })]
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
       className: "video-container",
       children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
@@ -2165,9 +2173,14 @@ var Timer = function Timer(_ref) {
     style: {
       marginLeft: '40px'
     },
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("span", {
-      children: ["conversation state  : ", start && !finish ? 'ON' : 'OFF']
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+      style: {
+        backgroundColor: "".concat(start && !finish ? 'green' : 'red'),
+        width: '20px',
+        height: '20px'
+      },
+      children: "Conversation state"
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("br", {}), start !== '' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
       children: "Timer :"
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("br", {}), start !== '' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("span", {
       children: ["start : ", start]

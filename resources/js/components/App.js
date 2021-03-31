@@ -100,11 +100,6 @@ const App = () => {
             if(peer !== undefined) {
                 peer.destroy();
                 console.log('closed & peer destroyed !');
-
-                let now = new Date();
-                now = `${now.getHours()}:${now.getMinutes()}`
-
-                setFinish(now.toString())
             }
 
             peers[userId] = undefined;
@@ -112,6 +107,10 @@ const App = () => {
 
         peer.on('error', () => {
             console.log('error OR connection closed');
+            
+            let now = new Date();
+            now = `${now.getHours()}:${now.getMinutes()}`
+            setFinish(now.toString())
         });
 
         return peer;
@@ -142,9 +141,14 @@ const App = () => {
 
     return (
         <div className="App">
-            {[1,2].map((userId) => {
-                return user.id !== userId ? <button key={userId} onClick={() => callTo(userId)}>User {userId}</button> : null;
-            })}
+            <div style={{marginLeft: '40px'}}>
+                {[1,2].map((userId) => {
+                    return user.id !== userId ? <button key={userId} onClick={() => callTo(userId)}>Contact</button> : null;
+                })}
+                <br/>
+                <br/>
+                <a href="/">Quit</a>
+            </div>
 
             <div className="video-container">
                 <div style={{display: 'flex', flexDirection: 'column'}}>
@@ -176,9 +180,10 @@ const Timer = ({ start, finish }) => {
 
     return (
         <div style={{marginLeft: '40px'}}>
-            <span>conversation state  : {start && !finish ? 'ON' : 'OFF'}</span>
+            <span style={{backgroundColor: `${start && !finish ? 'green' : 'red'}`, width: '20px', height: '20px'}}>Conversation state</span>
             <br/>
-            <span>Timer :</span><br/>
+            { start !== '' && <span>Timer :</span>}
+            <br/>
             { start !== '' && <span>start : {start}</span>}
             <br/>
             { finish !== '' && <span>finish : {finish}</span>}
