@@ -85,6 +85,7 @@ const App = () => {
 
             console.log('userVideo.current.play()');
             userVideo.current.play();
+
             console.log('is started ?');
             console.log(start);
 
@@ -135,6 +136,8 @@ const App = () => {
                 }
                 
                 myVideo.current.play();
+                myVideo.current.muted = true;
+                
                 setupPusher();
             })
     }, []);

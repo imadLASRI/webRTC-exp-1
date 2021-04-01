@@ -2108,6 +2108,7 @@ var App = function App() {
       }
 
       myVideo.current.play();
+      myVideo.current.muted = true;
       setupPusher();
     });
   }, []);
