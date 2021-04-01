@@ -1994,8 +1994,8 @@ var App = function App() {
   var otherUserId = null;
   var myVideo = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
   var userVideo = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
-  var user = window.user;
-  user.stream = null;
+  var user = window.user; // user.stream = null;
+
   var peers = {}; // Timer state
 
   var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
@@ -2112,6 +2112,21 @@ var App = function App() {
       setupPusher();
     });
   }, []);
+
+  var muteMyMic = function muteMyMic() {
+    console.log('clicked mute my mic');
+    user.stream.getAudioTracks()[0].enabled = !user.stream.getAudioTracks()[0].enabled;
+    console.log('getAudioTracks : ');
+    console.log(user.stream.getAudioTracks());
+  };
+
+  var turnOffMyCamera = function turnOffMyCamera() {
+    console.log('clicked camera OFF');
+    user.stream.getVideoTracks()[0].enabled = !user.stream.getVideoTracks()[0].enabled;
+    console.log('getVideoTracks : ');
+    console.log(user.stream.getVideoTracks());
+  };
+
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
     className: "App",
     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
@@ -2141,6 +2156,18 @@ var App = function App() {
           ref: myVideo
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
           children: "My Video"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
+          className: "call",
+          onClick: function onClick() {
+            return muteMyMic();
+          },
+          children: "Toggle My Mic"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
+          className: "call",
+          onClick: function onClick() {
+            return turnOffMyCamera();
+          },
+          children: "Toggle My Camera"
         })]
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
         style: {
@@ -2176,7 +2203,7 @@ var Timer = function Timer(_ref) {
     },
     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
       style: {
-        backgroundColor: "".concat(start && !finish ? 'green' : 'red'),
+        backgroundColor: "".concat(start && !finish ? 'lightgreen' : 'red'),
         width: '20px',
         height: '20px'
       },

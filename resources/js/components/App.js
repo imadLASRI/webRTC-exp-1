@@ -18,7 +18,7 @@ const App = () => {
     const userVideo = useRef(null);
 
     let user = window.user;
-    user.stream = null;
+    // user.stream = null;
     let peers = {};
     
     // Timer state
@@ -142,6 +142,24 @@ const App = () => {
             })
     }, []);
 
+    const muteMyMic = () => {
+        console.log('clicked mute my mic')
+
+        user.stream.getAudioTracks()[0].enabled = !(user.stream.getAudioTracks()[0].enabled);
+
+        console.log('getAudioTracks : ');
+        console.log(user.stream.getAudioTracks());
+    }
+
+    const turnOffMyCamera = () => {
+        console.log('clicked camera OFF')
+
+        user.stream.getVideoTracks()[0].enabled = !(user.stream.getVideoTracks()[0].enabled);
+        
+        console.log('getVideoTracks : ');
+        console.log(user.stream.getVideoTracks());
+    }
+
     return (
         <div className="App">
             <div style={{marginLeft: '40px'}}>
@@ -157,6 +175,8 @@ const App = () => {
                 <div style={{display: 'flex', flexDirection: 'column'}}>
                     <video className="my-video" ref={myVideo}></video>
                     <span>My Video</span>
+                    <button className="call" onClick={() => muteMyMic()}>Toggle My Mic</button>
+                    <button className="call" onClick={() => turnOffMyCamera()}>Toggle My Camera</button>
                 </div>
 
                 <div style={{display: 'flex', flexDirection: 'column'}}>
@@ -183,7 +203,7 @@ const Timer = ({ start, finish }) => {
 
     return (
         <div style={{marginLeft: '40px'}}>
-            <span style={{backgroundColor: `${start && !finish ? 'green' : 'red'}`, width: '20px', height: '20px'}}>Conversation state</span>
+            <span style={{backgroundColor: `${start && !finish ? 'lightgreen' : 'red'}`, width: '20px', height: '20px'}}>Conversation state</span>
             <br/>
             { start !== '' && <span>Timer :</span>}
             <br/>

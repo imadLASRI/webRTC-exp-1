@@ -10016,14 +10016,15 @@ h3 {
   justify-content: center;
 }
 .video-container .my-video {
-  width: 40%;
+  width: 70%;
   height: 100%;
   margin-right: 100px;
 }
 .video-container .user-video {
-  width: 40%;
+  width: 70%;
   height: 100%;
 }
 .video-container .call {
-  margin-left: 100px;
+  width: 200px;
+  margin-bottom: 20px;
 }
